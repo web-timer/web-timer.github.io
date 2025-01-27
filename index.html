@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer, Stopwatch, and Alarm</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color: white;
+      background: url('https://source.unsplash.com/1600x900/?sunset') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .corner-ui {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+    }
+
+    .corner-ui button {
+      margin: 5px;
+      padding: 10px 20px;
+      background: #f57c00;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .corner-ui button:hover {
+      background: #ff9800;
+    }
+
+    #output {
+      margin-top: 50px;
+      font-size: 30px;
+    }
+
+    .input-box {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="corner-ui">
+    <button onclick="startStopwatch()">Start Stopwatch</button>
+    <button onclick="resetStopwatch()">Reset Stopwatch</button>
+    <button onclick="startTimer()">Start Timer</button>
+    <button onclick="setAlarm()">Set Alarm</button>
+  </div>
+
+  <div id="output">Welcome! Select an option above.</div>
+
+  <script>
+    let stopwatchInterval, timerInterval;
+    let stopwatchTime = 0;
+    let timerTime = 10; // Default timer duration in seconds.
+
+    // Stopwatch Functions
+    function startStopwatch() {
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = setInterval(() => {
+        stopwatchTime++;
+        document.getElementById('output').textContent = `Stopwatch: ${stopwatchTime} seconds`;
+      }, 1000);
+    }
+
+    function resetStopwatch() {
+      clearInterval(stopwatchInterval);
+      stopwatchTime = 0;
+      document.getElementById('output').textContent = `Stopwatch reset to 0 seconds.`;
+    }
+
+    // Timer Functions
+    function startTimer() {
+      clearInterval(timerInterval);
+      document.getElementById('output').textContent = `Timer set for ${timerTime} seconds.`;
+      timerInterval = setInterval(() => {
+        timerTime--;
+        if (timerTime <= 0) {
+          clearInterval(timerInterval);
+          alert("Time's up!");
+          document.getElementById('output').textContent = `Timer finished!`;
+        } else {
+          document.getElementById('output').textContent = `Timer: ${timerTime} seconds remaining.`;
+        }
+      }, 1000);
+    }
+
+    // Alarm Functions
+    function setAlarm() {
+      if (!('Notification' in window)) {
+        alert('This browser does not support desktop notification.');
+        return;
+      }
+
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          setTimeout(() => {
+            new Notification('Alarm Notification', {
+              body: 'This is your alarm notification!',
+              icon: 'https://via.placeholder.com/128/FF9800/FFFFFF?text=Alarm'
+            });
+          }, 5000); // 5 seconds delay for demo purposes
+          document.getElementById('output').textContent = `Alarm set! You will get a notification in 5 seconds.`;
+        } else {
+          alert('Notification permissions denied.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
