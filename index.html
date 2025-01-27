@@ -3,120 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Timer, Stopwatch, and Alarm</title>
+  <title>Advanced Stopwatch & Timer</title>
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      text-align: center;
-      color: white;
-      background: url('https://source.unsplash.com/1600x900/?sunset') no-repeat center center fixed;
+      background: url('./8C729073-55EA-4BAB-ADC3-B799EB31F788.jpeg') no-repeat center center fixed;
       background-size: cover;
+      color: white;
+      text-align: center;
     }
 
-    .corner-ui {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 10px;
-      position: absolute;
-      top: 20px;
-      left: 20px;
+    .container {
+      margin-top: 100px;
+    }
+
+    .display {
+      font-size: 50px;
+      margin: 20px;
+      padding: 20px;
       background: rgba(0, 0, 0, 0.6);
       border-radius: 10px;
+      display: inline-block;
     }
 
-    .corner-ui button {
-      margin: 5px;
+    .controls {
+      margin: 20px;
+    }
+
+    button {
       padding: 10px 20px;
+      margin: 5px;
+      font-size: 18px;
+      color: white;
       background: #f57c00;
       border: none;
-      color: white;
       border-radius: 5px;
       cursor: pointer;
     }
 
-    .corner-ui button:hover {
+    button:hover {
       background: #ff9800;
-    }
-
-    #output {
-      margin-top: 50px;
-      font-size: 30px;
-    }
-
-    .input-box {
-      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="corner-ui">
-    <button onclick="startStopwatch()">Start Stopwatch</button>
-    <button onclick="resetStopwatch()">Reset Stopwatch</button>
-    <button onclick="startTimer()">Start Timer</button>
-    <button onclick="setAlarm()">Set Alarm</button>
+  <div class="container">
+    <div id="display" class="display">00:00:00.000</div>
+    <div class="controls">
+      <button onclick="startStopwatch()">Start</button>
+      <button onclick="pauseStopwatch()">Pause</button>
+      <button onclick="resetStopwatch()">Reset</button>
+    </div>
   </div>
 
-  <div id="output">Welcome! Select an option above.</div>
-
   <script>
-    let stopwatchInterval, timerInterval;
-    let stopwatchTime = 0;
-    let timerTime = 10; // Default timer duration in seconds.
+    let stopwatchInterval;
+    let startTime = 0;
+    let elapsedTime = 0;
+    let isRunning = false;
 
-    // Stopwatch Functions
-    function startStopwatch() {
-      clearInterval(stopwatchInterval);
-      stopwatchInterval = setInterval(() => {
-        stopwatchTime++;
-        document.getElementById('output').textContent = `Stopwatch: ${stopwatchTime} seconds`;
-      }, 1000);
+    // Format time in HH:MM:SS.mmm
+    function formatTime(time) {
+      const hours = String(Math.floor(time / 3600000)).padStart(2, '0');
+      const minutes = String(Math.floor((time % 3600000) / 60000)).padStart(2, '0');
+      const seconds = String(Math.floor((time % 60000) / 1000)).padStart(2, '0');
+      const milliseconds = String(time % 1000).padStart(3, '0');
+      return `${hours}:${minutes}:${seconds}.${milliseconds}`;
     }
 
+    // Start Stopwatch
+    function startStopwatch() {
+      if (isRunning) return; // Prevent multiple intervals
+      isRunning = true;
+      startTime = Date.now() - elapsedTime; // Adjust for paused time
+      stopwatchInterval = setInterval(() => {
+        elapsedTime = Date.now() - startTime;
+        document.getElementById('display').textContent = formatTime(elapsedTime);
+      }, 10); // Update every 10ms for precision
+    }
+
+    // Pause Stopwatch
+    function pauseStopwatch() {
+      if (!isRunning) return;
+      isRunning = false;
+      clearInterval(stopwatchInterval);
+    }
+
+    // Reset Stopwatch
     function resetStopwatch() {
       clearInterval(stopwatchInterval);
-      stopwatchTime = 0;
-      document.getElementById('output').textContent = `Stopwatch reset to 0 seconds.`;
-    }
-
-    // Timer Functions
-    function startTimer() {
-      clearInterval(timerInterval);
-      document.getElementById('output').textContent = `Timer set for ${timerTime} seconds.`;
-      timerInterval = setInterval(() => {
-        timerTime--;
-        if (timerTime <= 0) {
-          clearInterval(timerInterval);
-          alert("Time's up!");
-          document.getElementById('output').textContent = `Timer finished!`;
-        } else {
-          document.getElementById('output').textContent = `Timer: ${timerTime} seconds remaining.`;
-        }
-      }, 1000);
-    }
-
-    // Alarm Functions
-    function setAlarm() {
-      if (!('Notification' in window)) {
-        alert('This browser does not support desktop notification.');
-        return;
-      }
-
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          setTimeout(() => {
-            new Notification('Alarm Notification', {
-              body: 'This is your alarm notification!',
-              icon: 'https://via.placeholder.com/128/FF9800/FFFFFF?text=Alarm'
-            });
-          }, 5000); // 5 seconds delay for demo purposes
-          document.getElementById('output').textContent = `Alarm set! You will get a notification in 5 seconds.`;
-        } else {
-          alert('Notification permissions denied.');
-        }
-      });
+      isRunning = false;
+      startTime = 0;
+      elapsedTime = 0;
+      document.getElementById('display').textContent = "00:00:00.000";
     }
   </script>
 </body>
